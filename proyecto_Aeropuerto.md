@@ -339,3 +339,107 @@ Crea las carpetas `vuelo/` y `pasajero/` con los mismos archivos que en `aeropue
 ---
 
 ¿Quieres que te lo prepare como proyecto `.zip` listo para descargar o subirlo a GitHub?
+Gracias por notarlo, Eliseo. A continuación te comparto los archivos HTML completos para los modelos **Vuelo** y **Pasajero**, siguiendo el mismo estilo moderno y funcional con Bootstrap.
+
+---
+
+## ✈️ `vuelo/list.html`
+
+```html
+{% extends 'gestion_vuelos/base.html' %}
+{% block content %}
+<h2>Listado de Vuelos</h2>
+<a class="btn btn-success mb-2" href="{% url 'vuelo_create' %}">Agregar Vuelo</a>
+<table class="table table-hover table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Origen</th>
+            <th>Destino</th>
+            <th>Duración (min)</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for vuelo in object_list %}
+        <tr>
+            <td>{{ vuelo.id }}</td>
+            <td>{{ vuelo.origen }}</td>
+            <td>{{ vuelo.destino }}</td>
+            <td>{{ vuelo.duracion }}</td>
+            <td>
+                <a class="btn btn-warning btn-sm" href="{% url 'vuelo_update' vuelo.id %}">Editar</a>
+                <a class="btn btn-danger btn-sm" href="{% url 'vuelo_delete' vuelo.id %}">Eliminar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+```
+
+## 👤 `pasajero/list.html`
+
+```html
+{% extends 'gestion_vuelos/base.html' %}
+{% block content %}
+<h2>Listado de Pasajeros</h2>
+<a class="btn btn-success mb-2" href="{% url 'pasajero_create' %}">Agregar Pasajero</a>
+<table class="table table-hover table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Vuelos</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for pasajero in object_list %}
+        <tr>
+            <td>{{ pasajero.nombre }}</td>
+            <td>{{ pasajero.apellido }}</td>
+            <td>
+                {% for vuelo in pasajero.vuelos.all %}
+                    <span class="badge bg-info">{{ vuelo }}</span><br>
+                {% empty %}
+                    <span class="text-muted">Sin vuelos</span>
+                {% endfor %}
+            </td>
+            <td>
+                <a class="btn btn-warning btn-sm" href="{% url 'pasajero_update' pasajero.id %}">Editar</a>
+                <a class="btn btn-danger btn-sm" href="{% url 'pasajero_delete' pasajero.id %}">Eliminar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+```
+
+---
+
+## 📂 Resumen de plantillas por carpeta
+
+```
+gestion_vuelos/
+└── templates/
+    └── gestion_vuelos/
+        ├── base.html
+        ├── aeropuerto/
+        │   ├── list.html
+        │   ├── form.html
+        │   └── confirm_delete.html
+        ├── vuelo/
+        │   ├── list.html
+        │   ├── form.html
+        │   └── confirm_delete.html
+        └── pasajero/
+            ├── list.html
+            ├── form.html
+            └── confirm_delete.html
+```
+
+> ✅ Los archivos `form.html` y `confirm_delete.html` son idénticos para las tres entidades, por lo tanto puedes reutilizarlos copiándolos en cada subcarpeta (`aeropuerto`, `vuelo`, `pasajero`).
+
+¿Deseas que lo prepare como un proyecto listo para clonar o empaquetar en ZIP? También te puedo ayudar a subirlo a GitHub.
