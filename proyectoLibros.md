@@ -145,18 +145,18 @@ from decimal import Decimal
 
 class Pedido(models.Model):
     ESTADO_CHOICES = [
-        ('pending', 'Pendiente'),
-        ('processing', 'Procesando'),
-        ('shipping', 'Enviando'),
-        ('completed', 'Completado'),
-        ('cancelled', 'Cancelado'),
+        ('pendiente', 'Pendiente'),
+        ('procesando', 'Procesando'),
+        ('enviando', 'Enviando'),
+        ('completado', 'Completado'),
+        ('cancelado', 'Cancelado'),
     ]
 
     METODO_PAGO_CHOICES = [
-        ('cash', 'Efectivo'),
-        ('bank_transfer', 'Transferencia bancaria'),
-        ('card', 'Tarjeta de crédito'),
-        ('momo', 'Billetera MoMo'),
+        ('efectivo', 'Efectivo'),
+        ('Transferencia_bancaria', 'Transferencia bancaria'),
+        ('tarjeta', 'Tarjeta de crédito'),
+        
     ]
 
     cliente = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Cliente")
