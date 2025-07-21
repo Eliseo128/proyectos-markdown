@@ -174,3 +174,478 @@ class VentaProductoListView(ListView):
 
 También puedo preparar el `admin.py`, los formularios (`forms.py`) y los CRUD completos. ¿Te gustaría continuar con eso?
 
+4. ¡Perfecto, Eliseo! Vamos a reestructurar tu proyecto para que el archivo `views.py` use **funciones en lugar de clases**. También actualizaremos `urls.py` para que coincida con esta nueva estructura.
+
+---
+
+### ✅ views.py (con funciones)
+
+```python
+from django.shortcuts import render
+from .models import Cliente, Sucursal, Empleado, Producto, Fabrica, VentaProducto
+
+def inicio(request):
+    return render(request, 'inicio.html')
+
+def listar_clientes(request):
+    clientes = Cliente.objects.all()
+    return render(request, 'clientes.html', {'clientes': clientes})
+
+def listar_sucursales(request):
+    sucursales = Sucursal.objects.all()
+    return render(request, 'sucursales.html', {'sucursales': sucursales})
+
+def listar_empleados(request):
+    empleados = Empleado.objects.all()
+    return render(request, 'empleados.html', {'empleados': empleados})
+
+def listar_productos(request):
+    productos = Producto.objects.all()
+    return render(request, 'productos.html', {'productos': productos})
+
+def listar_fabricas(request):
+    fabricas = Fabrica.objects.all()
+    return render(request, 'fabricas.html', {'fabricas': fabricas})
+
+def listar_ventas(request):
+    ventas = VentaProducto.objects.select_related('producto', 'sucursal').all()
+    return render(request, 'ventas.html', {'ventas': ventas})
+```
+
+---
+
+### ✅ urls.py (actualizado para usar funciones)
+
+```python
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.inicio, name='inicio'),
+    path('clientes/', views.listar_clientes, name='listar_clientes'),
+    path('sucursales/', views.listar_sucursales, name='listar_sucursales'),
+    path('empleados/', views.listar_empleados, name='listar_empleados'),
+    path('productos/', views.listar_productos, name='listar_productos'),
+    path('fabricas/', views.listar_fabricas, name='listar_fabricas'),
+    path('ventas/', views.listar_ventas, name='listar_ventas'),
+]
+```
+
+---
+
+### ✅ Siguiente paso sugerido
+
+¿Deseas que te genere las plantillas HTML correspondientes como `clientes.html`, `productos.html`, etc., con diseño Bootstrap moderno y tabla para los listados?
+
+Puedo hacer eso ahora si lo deseas.
+Perfecto, Eliseo. Aquí tienes las plantillas HTML para cada vista: listas Bootstrap limpias, responsivas, con estilo moderno y tabla hover. Todas heredan de una base común (`base.html`) para mantener consistencia visual.
+
+---
+
+### ✅ `templates/base.html`
+
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadena de Deportes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'inicio' %}">Cadena Deportes</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'listar_clientes' %}">Clientes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'listar_empleados' %}">Empleados</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'listar_sucursales' %}">Sucursales</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'listar_productos' %}">Productos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'listar_fabricas' %}">Fábricas</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'listar_ventas' %}">Ventas</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
+```
+
+---
+
+### ✅ `inicio.html`
+
+```html
+{% extends 'base.html' %}
+{% block content %}
+    <div class="text-center mt-5">
+        <h1>Bienvenido a Cadena de Deportes</h1>
+        <p class="lead">Sistema de gestión de clientes, empleados, productos y sucursales.</p>
+    </div>
+{% endblock %}
+```
+
+---
+
+### ✅ `clientes.html`
+
+```html
+{% extends 'base.html' %}
+{% block content %}
+<h2>Clientes</h2>
+<table class="table table-hover shadow-sm">
+    <thead class="table-dark">
+        <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>DNI</th>
+            <th>Fecha Nac.</th>
+            <th>Ciudad</th>
+            <th>Sucursal</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for cliente in clientes %}
+        <tr>
+            <td>{{ cliente.codigo }}</td>
+            <td>{{ cliente.nombre }}</td>
+            <td>{{ cliente.dni }}</td>
+            <td>{{ cliente.fecha_nac }}</td>
+            <td>{{ cliente.ciudad }}</td>
+            <td>{{ cliente.sucursal.numero }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+```
+
+---
+
+### ✅ `empleados.html`
+
+```html
+{% extends 'base.html' %}
+{% block content %}
+<h2>Empleados</h2>
+<table class="table table-hover shadow-sm">
+    <thead class="table-dark">
+        <tr>
+            <th>Legajo</th>
+            <th>Nombre</th>
+            <th>DNI</th>
+            <th>Teléfonos</th>
+            <th>Dirección</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for empleado in empleados %}
+        <tr>
+            <td>{{ empleado.legajo }}</td>
+            <td>{{ empleado.nombre }}</td>
+            <td>{{ empleado.dni }}</td>
+            <td>{{ empleado.telefonos }}</td>
+            <td>{{ empleado.calle }} {{ empleado.numero }}, {{ empleado.ciudad }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+```
+
+---
+
+### ✅ `sucursales.html`
+
+```html
+{% extends 'base.html' %}
+{% block content %}
+<h2>Sucursales</h2>
+<table class="table table-hover shadow-sm">
+    <thead class="table-dark">
+        <tr>
+            <th>Número</th>
+            <th>Domicilio</th>
+            <th>Ciudad</th>
+            <th>Descuento (%)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sucursal in sucursales %}
+        <tr>
+            <td>{{ sucursal.numero }}</td>
+            <td>{{ sucursal.domicilio }}</td>
+            <td>{{ sucursal.ciudad }}</td>
+            <td>{{ sucursal.descuento }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+```
+
+---
+
+### ✅ `productos.html`
+
+```html
+{% extends 'base.html' %}
+{% block content %}
+<h2>Productos</h2>
+<table class="table table-hover shadow-sm">
+    <thead class="table-dark">
+        <tr>
+            <th>Código</th>
+            <th>Descripción</th>
+            <th>Color</th>
+            <th>Costo</th>
+            <th>Fábrica</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for producto in productos %}
+        <tr>
+            <td>{{ producto.codigo }}</td>
+            <td>{{ producto.descripcion }}</td>
+            <td>{{ producto.color }}</td>
+            <td>{{ producto.costo }}</td>
+            <td>{{ producto.fabrica.nombre }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+```
+
+---
+
+### ✅ `fabricas.html`
+
+```html
+{% extends 'base.html' %}
+{% block content %}
+<h2>Fábricas</h2>
+<table class="table table-hover shadow-sm">
+    <thead class="table-dark">
+        <tr>
+            <th>CUIT</th>
+            <th>Nombre</th>
+            <th>País</th>
+            <th>Cantidad Empleados</th>
+            <th>Gerente</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for fabrica in fabricas %}
+        <tr>
+            <td>{{ fabrica.cuit }}</td>
+            <td>{{ fabrica.nombre }}</td>
+            <td>{{ fabrica.pais }}</td>
+            <td>{{ fabrica.cant_emp }}</td>
+            <td>{{ fabrica.gerente }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+```
+
+---
+
+### ✅ `ventas.html`
+
+```html
+{% extends 'base.html' %}
+{% block content %}
+<h2>Ventas por Sucursal</h2>
+<table class="table table-hover shadow-sm">
+    <thead class="table-dark">
+        <tr>
+            <th>Producto</th>
+            <th>Sucursal</th>
+            <th>Precio Venta</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for venta in ventas %}
+        <tr>
+            <td>{{ venta.producto.descripcion }}</td>
+            <td>{{ venta.sucursal.numero }}</td>
+            <td>{{ venta.precio_venta }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+```
+
+---
+
+¿Deseas que estos archivos te los empaquete como proyecto `.zip` o que genere también los formularios para crear, editar y eliminar datos (CRUD completo)?
+¡Perfecto, Eliseo! Vamos a implementar el CRUD completo con **formularios** para crear, editar y eliminar datos para el proyecto **Cadena de Deportes**, utilizando funciones basadas en vistas y formularios con Bootstrap.
+
+📁 Incluiremos:
+
+1. `forms.py`
+2. Vistas en `views.py` para **crear, editar y eliminar**
+3. Nuevas rutas en `urls.py`
+4. Plantillas HTML para formularios (`form.html`, `confirm_delete.html`)
+
+---
+
+## ✅ `forms.py`
+
+```python
+from django import forms
+from .models import Cliente, Empleado, Sucursal, Producto, Fabrica, VentaProducto
+
+class ClienteForm(forms.ModelForm):
+    class Meta:
+        model = Cliente
+        fields = '__all__'
+
+class EmpleadoForm(forms.ModelForm):
+    class Meta:
+        model = Empleado
+        fields = '__all__'
+
+class SucursalForm(forms.ModelForm):
+    class Meta:
+        model = Sucursal
+        fields = '__all__'
+
+class ProductoForm(forms.ModelForm):
+    class Meta:
+        model = Producto
+        fields = '__all__'
+
+class FabricaForm(forms.ModelForm):
+    class Meta:
+        model = Fabrica
+        fields = '__all__'
+
+class VentaProductoForm(forms.ModelForm):
+    class Meta:
+        model = VentaProducto
+        fields = '__all__'
+```
+
+---
+
+## ✅ Actualización en `views.py` (ejemplo para Cliente, replicable a otros)
+
+```python
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Cliente
+from .forms import ClienteForm
+
+# --- CRUD Cliente ---
+
+def crear_cliente(request):
+    form = ClienteForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        return redirect('listar_clientes')
+    return render(request, 'form.html', {'form': form, 'titulo': 'Nuevo Cliente'})
+
+def editar_cliente(request, pk):
+    cliente = get_object_or_404(Cliente, pk=pk)
+    form = ClienteForm(request.POST or None, instance=cliente)
+    if form.is_valid():
+        form.save()
+        return redirect('listar_clientes')
+    return render(request, 'form.html', {'form': form, 'titulo': 'Editar Cliente'})
+
+def eliminar_cliente(request, pk):
+    cliente = get_object_or_404(Cliente, pk=pk)
+    if request.method == "POST":
+        cliente.delete()
+        return redirect('listar_clientes')
+    return render(request, 'confirm_delete.html', {'obj': cliente, 'titulo': 'Eliminar Cliente'})
+```
+
+---
+
+## ✅ Actualización `urls.py` (solo para Cliente, similar para los demás)
+
+```python
+# Importar vistas
+from . import views
+
+urlpatterns = [
+    path('', views.inicio, name='inicio'),
+
+    # Clientes
+    path('clientes/', views.listar_clientes, name='listar_clientes'),
+    path('clientes/nuevo/', views.crear_cliente, name='crear_cliente'),
+    path('clientes/editar/<int:pk>/', views.editar_cliente, name='editar_cliente'),
+    path('clientes/eliminar/<int:pk>/', views.eliminar_cliente, name='eliminar_cliente'),
+
+    # Repite para empleados, sucursales, productos, fabricas, ventas...
+]
+```
+
+---
+
+## ✅ Plantilla `form.html`
+
+```html
+{% extends 'base.html' %}
+{% block content %}
+<div class="card shadow">
+    <div class="card-header bg-primary text-white">{{ titulo }}</div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-success">Guardar</button>
+            <a href="{% url 'inicio' %}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
+```
+
+---
+
+## ✅ Plantilla `confirm_delete.html`
+
+```html
+{% extends 'base.html' %}
+{% block content %}
+<div class="alert alert-danger mt-4 shadow-sm">
+    <h4>{{ titulo }}</h4>
+    <p>¿Estás seguro que deseas eliminar <strong>{{ obj }}</strong>?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+        <a href="{% url 'listar_clientes' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}
+```
+
+---
+
+## ✅ Actualizar tabla de `clientes.html` para botones
+
+```html
+...
+<td>
+    <a href="{% url 'editar_cliente' cliente.pk %}" class="btn btn-sm btn-warning">Editar</a>
+    <a href="{% url 'eliminar_cliente' cliente.pk %}" class="btn btn-sm btn-danger">Eliminar</a>
+</td>
+...
+```
+
+---
+
+## 🔁 ¿Qué sigue?
+
+Puedo generar automáticamente el CRUD para el resto de modelos (`Empleado`, `Sucursal`, `Producto`, etc.) siguiendo la misma estructura. ¿Te gustaría que genere todo el CRUD completo para cada uno?
+
+También puedo empaquetarte el proyecto base en `.zip` listo para correr. ¿Deseas eso también?
